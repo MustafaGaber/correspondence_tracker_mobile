@@ -10,7 +10,7 @@ class CorrespondenceWithFollowUps extends Correspondence {
     // Props from base Correspondence class
     required super.id,
     super.fileId,
-    super.extension,
+    super.fileExtension,
     required super.direction,
     required super.priorityLevel,
     required super.incomingNumber,

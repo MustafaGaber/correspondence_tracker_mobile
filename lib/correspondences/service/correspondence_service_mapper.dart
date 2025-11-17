@@ -71,8 +71,9 @@ Correspondence correspondenceFromMap(dynamic map) {
         .map((c) => Classification(c['id'], c['name']))
         .toList(),
     fileId: map['fileId'],
-    extension: map['fileExtension'],
+    fileExtension: map['fileExtension'],
     notes: map['notes'],
+    finalAction: map['finalAction'],
     reminders: (map['reminders'] as List<dynamic>? ?? [])
         .map((r) => reminderFromMap(r))
         .toList(),
@@ -92,7 +93,6 @@ CorrespondenceWithFollowUps correspondenceWithFollowUpsFromMap(dynamic map) {
 
   return CorrespondenceWithFollowUps(
     followUps: followUps,
-    // Pass all base properties
     id: base.id,
     direction: base.direction,
     priorityLevel: base.priorityLevel,
@@ -110,7 +110,7 @@ CorrespondenceWithFollowUps correspondenceWithFollowUpsFromMap(dynamic map) {
     createdAt: base.createdAt,
     classifications: base.classifications,
     fileId: base.fileId,
-    extension: base.extension,
+    fileExtension: base.fileExtension,
     notes: base.notes,
     reminders: base.reminders,
     subject: base.subject,

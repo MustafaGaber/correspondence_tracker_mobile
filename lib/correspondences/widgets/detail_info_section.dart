@@ -1,155 +1,158 @@
-import 'package:correspondence_tracker/shared/models/enums.dart';
 import 'package:flutter/material.dart';
-
-import '../models/correspondence_with_follow_ups.dart';
+import '../models/correspondence.dart';
 
 class DetailInfoSection extends StatelessWidget {
-  final CorrespondenceWithFollowUps correspondence;
-  
+  final Correspondence correspondence;
+
   const DetailInfoSection({super.key, required this.correspondence});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 3.5,
+    final theme = Theme.of(context);
+    final classifications = correspondence.classifications
+        .map((c) => c.name)
+        .toList();
+
+    final String date =
+        correspondence.incomingDate?.toString() ??
+        correspondence.outgoingDate?.toString() ??
+        '-';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          correspondence.subject?.name ?? 'لا يوجد موضوع',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        Row(
           children: [
-            _InfoTile(
-              label: 'الرقم',
-              value: correspondence.direction == CorrespondenceDirection.incoming
-                  ? correspondence.incomingNumber
-                  : correspondence.outgoingNumber ?? '-',
-              icon: Icons.numbers,
-            ),
-            _InfoTile(
-              label: 'النوع',
-              value: correspondence.direction == CorrespondenceDirection.incoming
+            _DetailRow(label: 'التاريخ', value: date),
+            Spacer(),
+            /*_StatusChip(
+              label:
+                  correspondence.direction == CorrespondenceDirection.incoming
                   ? 'وارد'
                   : 'صادر',
-              icon: Icons.swap_horiz,
-              color: correspondence.direction == CorrespondenceDirection.incoming
+              color:
+                  correspondence.direction == CorrespondenceDirection.incoming
                   ? Colors.green.shade700
                   : Colors.blue.shade700,
-            ),
-            _InfoTile(
-              label: 'التاريخ',
-              value: correspondence.incomingDate?.toString() ??
-                  correspondence.outgoingDate?.toString() ??
-                  '-',
-              icon: Icons.calendar_today,
-            ),
-            _InfoTile(
-              label: 'الأهمية',
-              value: _getPriorityLabel(correspondence.priorityLevel),
-              icon: Icons.priority_high,
+            ),*/
+            /*_StatusChip(
+              label: _getPriorityLabel(correspondence.priorityLevel),
               color: _getPriorityColor(correspondence.priorityLevel),
-            ),
-            _InfoTile(
-              label: 'الجهة المرسلة/المستقبلة',
-              value: correspondence.correspondent?.name ?? '-',
-              icon: Icons.business,
-            ),
-            _InfoTile(
-              label: 'القسم المسؤول',
-              value: correspondence.department?.name ?? '-',
-              icon: Icons.apartment,
-            ),
-            _InfoTile(
-              label: 'متابع الخطاب',
-              value: correspondence.followUpUser?.name ?? '-',
-              icon: Icons.person_search,
-            ),
-            _InfoTile(
-              label: 'حالة الخطاب',
-              value: correspondence.isClosed ? 'مغلق' : 'مفتوح',
-              icon: correspondence.isClosed ? Icons.lock : Icons.lock_open,
-              color: correspondence.isClosed ? Colors.grey : Colors.red,
-            ),
-            // Tags/Classifications
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: _ClassificationTags(
-                classifications: correspondence.classifications.map((c) => c.name).toList(),
-              ),
+            ),*/
+            _StatusChip(
+              label: correspondence.isClosed ? 'مغلق' : 'مفتوح',
+              color: correspondence.isClosed
+                  ? Colors.grey.shade600
+                  : Colors.red.shade700,
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 24),
+
+        // 3. Details List (Handles long text)
+        // This layout is very robust for variable length text.
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _DetailRow(
+              label: 'الجهة المرسلة/المستقبلة',
+              value: correspondence.correspondent?.name ?? '-',
+            ),
+            _DetailRow(
+              label: 'القسم المسؤول',
+              value: correspondence.department?.name ?? '-',
+            ),
+            _DetailRow(
+              label: 'متابع الخطاب',
+              value: correspondence.followUpUser?.name ?? '-',
+            ),
+          ],
+        ),
+
+        // 4. Classifications (Tags)
+        if (classifications.isNotEmpty) ...[
+          const Divider(height: 32.0),
+          _ClassificationTags(classifications: classifications),
+        ],
+      ],
     );
   }
 
-  String _getPriorityLabel(PriorityLevel p) {
+  /*String _getPriorityLabel(PriorityLevel p) {
     switch (p) {
-      case PriorityLevel.high: return 'عالية';
-      case PriorityLevel.medium: return 'متوسطة';
-      case PriorityLevel.normal: return 'عادية';
+      case PriorityLevel.high:
+        return 'عالية';
+      case PriorityLevel.medium:
+        return 'متوسطة';
+      case PriorityLevel.normal:
+        return 'عادية';
     }
-  }
-  
-  Color _getPriorityColor(PriorityLevel p) {
+  }*/
+
+  /*Color _getPriorityColor(PriorityLevel p) {
     switch (p) {
-      case PriorityLevel.high: return Colors.red;
-      case PriorityLevel.medium: return Colors.orange;
-      case PriorityLevel.normal: return Colors.blue;
+      case PriorityLevel.high:
+        return Colors.red.shade700;
+      case PriorityLevel.medium:
+        return Colors.orange.shade700;
+      case PriorityLevel.normal:
+        return Colors.blue.shade700;
     }
-  }
+  }*/
 }
 
-class _InfoTile extends StatelessWidget {
+class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
-  final IconData icon;
-  final Color? color;
 
-  const _InfoTile({
-    required this.label,
-    required this.value,
-    required this.icon,
-    this.color,
-  });
+  const _DetailRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final displayColor = color ?? theme.colorScheme.primary;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: displayColor),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              Text(
-                value,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(value, style: theme.textTheme.bodyLarge),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _StatusChip({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Text(label),
+      labelStyle: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+      backgroundColor: color,
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
     );
   }
 }
@@ -160,24 +163,33 @@ class _ClassificationTags extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (classifications.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'التصنيفات:',
-          style: Theme.of(context).textTheme.labelLarge,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        ...classifications.map(
-          (tag) => Chip(
-            label: Text(tag),
-            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-            labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
-            visualDensity: VisualDensity.compact,
-          ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: classifications
+              .map(
+                (tag) => Chip(
+                  label: Text(tag),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer,
+                  labelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
+              )
+              .toList(),
         ),
       ],
     );

@@ -5,30 +5,46 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
-            child: Text('Drawer Header'),
+    return NavigationDrawer(
+      children: [
+        // Header equivalent
+        Padding(
+          padding: const EdgeInsets.fromLTRB(28, 16, 16, 20),
+          child: Text(
+            'Drawer Header',
+            style: Theme.of(context).textTheme.titleSmall,
           ),
-          ListTile(
-            title: const Text('Item 1'),
-            onTap: () {
-              // Update the state of the app.
-              // ...
-            },
+        ),
+        
+        // Navigation items
+        NavigationDrawerDestination(
+          label: Text('Item 1'),
+          icon: Icon(Icons.circle_outlined),
+        ),
+        NavigationDrawerDestination(
+          label: Text('Item 2'),
+          icon: Icon(Icons.circle_outlined),
+        ),
+        
+        // Divider for separation (optional)
+        const Divider(indent: 28, endIndent: 28),
+        
+        // You can add more sections if needed
+        /*
+        Padding(
+          padding: const EdgeInsets.fromLTRB(28, 16, 16, 8),
+          child: Text(
+            'Other Section',
+            style: Theme.of(context).textTheme.labelSmall,
           ),
-          ListTile(
-            title: const Text('Item 2'),
-            onTap: () {
-              // Update the state of the app.
-              // ...
-            },
-          ),
-        ],
-      ),
+        ),
+        NavigationDrawerDestination(
+          label: Text('Item 3'),
+          icon: Icon(Icons.settings_outlined),
+          selectedIcon: Icon(Icons.settings),
+        ),
+        */
+      ],
     );
   }
 }

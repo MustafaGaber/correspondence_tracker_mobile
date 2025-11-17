@@ -6,7 +6,6 @@ import '../cubit/correspondences_state.dart';
 import '../models/correspondence.dart';
 import '../models/get_correspondences_filter_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' as intl;
 import '../widgets/correspondence_list.dart';
 import '../widgets/filter_sheet.dart';
 import '../widgets/stats_header.dart'; // For date formatting
@@ -19,18 +18,15 @@ class CorrespondencePage extends StatefulWidget {
 }
 
 class _CorrespondencePageState extends State<CorrespondencePage> {
-  // State for filters and search
+
   late GetCorrespondencesFilterModel _filter;
   final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Initialize with default filters
     _filter = const GetCorrespondencesFilterModel(isClosed: false);
     _searchController.addListener(_onSearchChanged);
-
-    // Load initial data
     _loadData();
   }
 
@@ -74,39 +70,30 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
   }
 
   void _onAddNew() {
-    // TODO: Navigate to create/edit screen
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => EditCorrespondencePage()));
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Navigate to Add New Page')));
   }
 
   void _onImportFromExcel() {
-    // TODO: Implement file picking logic
-    // FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'xls']);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Implement Excel Import')));
   }
 
   void _onItemTap(Correspondence item) {
-    // TODO: Navigate to detail screen
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => DetailPage(item.id)));
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => CorrespondenceDetailPage(item.id)),
     );
   }
 
   void _onEditItem(Correspondence item) {
-    // TODO: Navigate to edit screen
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => EditCorrespondencePage(item: item)));
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Edit ${item.id}')));
   }
 
   void _onDeleteItem(Correspondence item) {
-    // Show confirmation dialog
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -132,7 +119,6 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
   }
 
   void _onViewFile(Correspondence item) {
-    // TODO: Implement file download/view logic from service
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('View file ${item.fileId}')));
@@ -179,7 +165,6 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
           onRefresh: () async => _loadData(),
           child: Column(
             children: [
-              // Search Bar
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: TextField(
@@ -221,7 +206,6 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
                       );
                     }
 
-                    // Calculate stats
                     final total = state.correspondences.length;
                     final open = state.correspondences
                         .where((c) => !c.isClosed)
@@ -230,9 +214,7 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
 
                     return Column(
                       children: [
-                        // Stats Header (Dumb Widget)
                         StatsHeader(total: total, open: open, closed: closed),
-                        // List (Dumb Widget)
                         Expanded(
                           child: CorrespondenceList(
                             correspondences: state.correspondences,
@@ -256,25 +238,6 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
           child: const Icon(Icons.add),
         ),
       ),
-    );
-  }
-}
-
-// Add this to your model for easy filter updates
-extension FilterCopyWith on GetCorrespondencesFilterModel {
-  GetCorrespondencesFilterModel copyWith({
-    String? searchTerm,
-    int? direction,
-    int? priorityLevel,
-    bool? isClosed,
-    // ... other fields
-  }) {
-    return GetCorrespondencesFilterModel(
-      searchTerm: searchTerm ?? this.searchTerm,
-      direction: direction ?? this.direction,
-      priorityLevel: priorityLevel ?? this.priorityLevel,
-      isClosed: isClosed ?? this.isClosed,
-      // ...
     );
   }
 }

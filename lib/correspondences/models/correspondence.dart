@@ -11,10 +11,10 @@ import 'reminder.dart';
 class Correspondence extends Equatable {
   final String id;
   final String? fileId;
-  final String? extension;
+  final String? fileExtension;
   final CorrespondenceDirection direction;
   final PriorityLevel priorityLevel;
-  final String incomingNumber;
+  final String? incomingNumber;
   final DateOnly? incomingDate;
   final String? outgoingNumber;
   final DateOnly? outgoingDate;
@@ -29,12 +29,13 @@ class Correspondence extends Equatable {
   final List<Classification> classifications;
   final Subject? subject;
   final String? notes;
+  final String? finalAction;
   final List<Reminder> reminders;
 
   const Correspondence({
     required this.id,
     this.fileId,
-    this.extension,
+    this.fileExtension,
     required this.direction,
     required this.priorityLevel,
     required this.incomingNumber,
@@ -52,6 +53,7 @@ class Correspondence extends Equatable {
     this.classifications = const [],
     this.subject,
     this.notes,
+    this.finalAction,
     this.reminders = const [],
   });
 
@@ -59,7 +61,7 @@ class Correspondence extends Equatable {
   List<Object?> get props => [
         id,
         fileId,
-        extension,
+        fileExtension,
         direction,
         priorityLevel,
         incomingNumber,
@@ -77,6 +79,7 @@ class Correspondence extends Equatable {
         classifications,
         subject,
         notes,
+        finalAction,
         reminders,
       ];
 }

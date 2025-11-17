@@ -26,9 +26,9 @@ class CorrespondenceListItem extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     String number = item.direction == CorrespondenceDirection.incoming
-        ? 'وارد رقم ${item.incomingNumber}'
-        : 'صادر رقم ${item.outgoingNumber ?? '-'}';
-    
+        ? 'وارد${item.incomingNumber?.isEmpty ?? false ? '' : ' رقم ${item.incomingNumber}'}'
+        : 'صادر${item.outgoingNumber?.isEmpty ?? false ? '' :  ' رقم ${item.outgoingNumber}'}';
+
     DateOnly? date = item.direction == CorrespondenceDirection.incoming
         ? item.incomingDate
         : item.outgoingDate;
@@ -39,7 +39,9 @@ class CorrespondenceListItem extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -50,7 +52,6 @@ class CorrespondenceListItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Row 1: Number, Date, and Status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -61,22 +62,53 @@ class CorrespondenceListItem extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  Spacer(),
                   _StatusChip(isClosed: item.isClosed),
-                ],
-              ),
-              if (date != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    intl.DateFormat('yyyy/MM/dd').format(date.dateTime),
-                    style: textTheme.bodySmall?.copyWith(
+                  PopupMenuButton(
+                    itemBuilder: (ctx) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined),
+                            SizedBox(width: 8),
+                            Text('تعديل'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline),
+                            SizedBox(width: 8),
+                            Text('حذف'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        onEdit();
+                      } else if (value == 'delete') {
+                        onDelete();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.more_vert,
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
+                ],
+              ),
+              if (date != null)
+                Text(
+                  intl.DateFormat('yyyy/MM/dd').format(date.dateTime),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              const SizedBox(height: 12),
-
-              // Row 2: Correspondent and Subject
+              const SizedBox(height: 4),
               Text(
                 item.correspondent?.name ?? 'غير محدد',
                 style: textTheme.titleMedium?.copyWith(
@@ -87,7 +119,7 @@ class CorrespondenceListItem extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                item.subject?.name ?? item.summary ?? 'لا يوجد ملخص',
+                item.subject?.name ?? item.summary ?? '',
                 style: textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -96,12 +128,11 @@ class CorrespondenceListItem extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Row 3: Info Chips (Priority, User)
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  _PriorityChip(priority: item.priorityLevel),
+                  //_PriorityChip(priority: item.priorityLevel),
                   if (item.responsibleUser != null)
                     _InfoChip(
                       icon: Icons.person_outline,
@@ -119,43 +150,12 @@ class CorrespondenceListItem extends StatelessWidget {
                       IconButton.filledTonal(
                         onPressed: onViewFile,
                         icon: Icon(
-                          item.extension == 'pdf' ? Icons.picture_as_pdf_outlined : Icons.image_outlined,
+                          item.fileExtension == 'pdf'
+                              ? Icons.picture_as_pdf_outlined
+                              : Icons.image_outlined,
                         ),
                         tooltip: 'عرض الملف',
                       ),
-                    const Spacer(),
-                    PopupMenuButton(
-                      itemBuilder: (ctx) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit_outlined),
-                              SizedBox(width: 8),
-                              Text('تعديل'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete_outline),
-                              SizedBox(width: 8),
-                              Text('حذف'),
-                            ],
-                          ),
-                        ),
-                      ],
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          onEdit();
-                        } else if (value == 'delete') {
-                          onDelete();
-                        }
-                      },
-                      icon: Icon(Icons.more_vert, color: colorScheme.onSurfaceVariant),
-                    ),
                   ],
                 ),
               ),
@@ -184,8 +184,10 @@ class _StatusChip extends StatelessWidget {
         fontWeight: FontWeight.w500,
       ),
       backgroundColor: isClosed
-          ? Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4)
-          : Theme.of(context).colorScheme.errorContainer.withOpacity(0.4),
+          ? Theme.of(
+              context,
+            ).colorScheme.secondaryContainer.withValues(alpha: 0.4)
+          : Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.4),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -193,7 +195,7 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-class _PriorityChip extends StatelessWidget {
+/*class _PriorityChip extends StatelessWidget {
   final PriorityLevel priority;
   const _PriorityChip({required this.priority});
 
@@ -216,7 +218,7 @@ class _PriorityChip extends StatelessWidget {
     }
     return _InfoChip(icon: Icons.priority_high, label: label, color: color);
   }
-}
+}*/
 
 class _InfoChip extends StatelessWidget {
   final IconData icon;
@@ -232,7 +234,7 @@ class _InfoChip extends StatelessWidget {
       avatar: Icon(icon, size: 16, color: chipColor),
       label: Text(label),
       labelStyle: TextStyle(color: chipColor),
-      backgroundColor: chipColor.withOpacity(0.1),
+      backgroundColor: chipColor.withValues(alpha: 0.1),
       side: BorderSide.none,
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 4),

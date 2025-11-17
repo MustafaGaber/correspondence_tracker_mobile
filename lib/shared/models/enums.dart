@@ -3,8 +3,6 @@
 enum CorrespondenceDirection {
   incoming,
   outgoing,
-  // Add other potential values based on your backend
-  // (e.g., if '0' is incoming, '1' is outgoing)
 }
 
 enum PriorityLevel {
@@ -19,18 +17,14 @@ extension CorrespondenceDirectionInt on CorrespondenceDirection {
   int get value {
     switch (this) {
       case CorrespondenceDirection.incoming:
-        return 0; // Example value
-      case CorrespondenceDirection.outgoing:
         return 1; // Example value
+      case CorrespondenceDirection.outgoing:
+        return 2; // Example value
     }
   }
 
   static CorrespondenceDirection fromValue(int val) {
-    // Note: Provides a default, adjust as needed
-    return CorrespondenceDirection.values.firstWhere(
-      (e) => e.value == val,
-      orElse: () => CorrespondenceDirection.incoming,
-    );
+    return val == 2 ? CorrespondenceDirection.outgoing : CorrespondenceDirection.incoming;
   }
 }
 

@@ -1,4 +1,3 @@
-import '../models/correspondence.dart';
 import 'correspondences_state.dart';
 
 /// Deserializes the JSON map into a [CorrespondencesState].

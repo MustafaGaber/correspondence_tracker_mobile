@@ -7,7 +7,7 @@ class DateOnly extends Equatable implements Comparable<DateOnly> {
   final DateTime _dateTime;
 
   // Internal constructor
-  DateOnly._(this._dateTime);
+  const DateOnly._(this._dateTime);
 
   /// Creates a DateOnly from a DateTime, stripping time info.
   factory DateOnly.fromDateTime(DateTime dt) {
