@@ -10,14 +10,14 @@ import '../widgets/correspondence_list.dart';
 import '../widgets/filter_sheet.dart';
 import '../widgets/stats_header.dart'; // For date formatting
 
-class CorrespondencePage extends StatefulWidget {
-  const CorrespondencePage({super.key});
+class CorrespondencesPage extends StatefulWidget {
+  const CorrespondencesPage({super.key});
 
   @override
-  State<CorrespondencePage> createState() => _CorrespondencePageState();
+  State<CorrespondencesPage> createState() => _CorrespondencesPageState();
 }
 
-class _CorrespondencePageState extends State<CorrespondencePage> {
+class _CorrespondencesPageState extends State<CorrespondencesPage> {
 
   late GetCorrespondencesFilterModel _filter;
   final _searchController = TextEditingController();
@@ -88,6 +88,9 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
   }
 
   void _onEditItem(Correspondence item) {
+    /*Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => CorrespondenceDetailPage(item.id)),
+    );*/
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Edit ${item.id}')));
@@ -143,11 +146,6 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
               icon: const Icon(Icons.filter_list),
               tooltip: 'بحث متقدم',
               onPressed: _showAdvancedFilters,
-            ),
-            IconButton(
-              icon: const Icon(Icons.file_upload_outlined),
-              tooltip: 'إضافة من إكسل',
-              onPressed: _onImportFromExcel,
             ),
             Builder(
               builder: (context) {
@@ -214,7 +212,7 @@ class _CorrespondencePageState extends State<CorrespondencePage> {
 
                     return Column(
                       children: [
-                        StatsHeader(total: total, open: open, closed: closed),
+                        //StatsHeader(total: total, open: open, closed: closed),
                         Expanded(
                           child: CorrespondenceList(
                             correspondences: state.correspondences,

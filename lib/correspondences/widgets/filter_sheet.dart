@@ -116,9 +116,12 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
 
   String _getPriorityLabel(PriorityLevel p) {
     switch (p) {
-      case PriorityLevel.high: return 'هام';
+      case PriorityLevel.critical: return 'حرج';
+      case PriorityLevel.urgentAndImportant: return 'هام وعاجل';
+      case PriorityLevel.urgent: return 'عاجل';
+      case PriorityLevel.important: return 'هام';
       case PriorityLevel.medium: return 'متوسط';
-      case PriorityLevel.normal: return 'عادي';
+      case PriorityLevel.low: return 'منخفض';
     }
   }
 }

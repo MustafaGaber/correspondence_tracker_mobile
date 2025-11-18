@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:correspondence_tracker/shared/models/date_functions.dart';
+import 'package:correspondence_tracker/shared/functions/api_functions.dart';
+import 'package:correspondence_tracker/shared/functions/date_functions.dart';
 import 'package:http/http.dart' as http;
 import '../models/correspondence.dart';
 import '../models/correspondence_request.dart';
@@ -17,29 +18,16 @@ class CorrespondenceService {
   final String _baseUrl;
   final String _filesUrl;
 
-  // Inject the http client and base URL
   CorrespondenceService(String apiUrl)
       : _baseUrl = '$apiUrl/Correspondence',
         _filesUrl = '$apiUrl/Files';
 
-  // Helper to handle API responses
-  dynamic _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isEmpty) return null;
-      final decoded = json.decode(response.body);
-      return decoded['result']; // Assuming all responses have a 'result' wrapper
-    } else {
-      throw Exception(
-          'API Error: ${response.statusCode} - ${response.body}');
-    }
-  }
 
   Future<void> closeCorrespondence(String id) async {
     final uri = Uri.parse('$_baseUrl/$id/Close');
-    final response = await _http.patch(uri, headers: {
+    await _http.patch(uri, headers: {
       'Content-Type': 'application/json',
     });
-    _handleResponse(response);
   }
 
   Future<void> setCorrespondenceFile(String id, String filePath,
@@ -50,8 +38,7 @@ class CorrespondenceService {
         await http.MultipartFile.fromPath('file', filePath,
             filename: fileName));
     
-    final response = await request.send();
-    _handleResponse(await http.Response.fromStream(response));
+     await request.send();
   }
 
   Future<List<Correspondence>> searchCorrespondences(
@@ -62,14 +49,14 @@ class CorrespondenceService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode(filter.toMap()), // Use the toMap() method
     );
-    final result = _handleResponse(response) as List<dynamic>? ?? [];
+    final result = handleResponse(response) as List<dynamic>? ?? [];
     return result.map((item) => correspondenceFromMap(item)).toList();
   }
 
   Future<CorrespondenceWithFollowUps> getCorrespondenceById(String id) async {
     final uri = Uri.parse('$_baseUrl/$id');
     final response = await _http.get(uri);
-    final result = _handleResponse(response);
+    final result = handleResponse(response);
     return correspondenceWithFollowUpsFromMap(result);
   }
 
@@ -101,7 +88,7 @@ class CorrespondenceService {
       body: json.encode(body),
     );
     
-    final result = _handleResponse(response) as List<dynamic>? ?? [];
+    final result = handleResponse(response) as List<dynamic>? ?? [];
     return result.map((item) => correspondenceFromMap(item)).toList();
   }
 
@@ -119,7 +106,7 @@ class CorrespondenceService {
     }
     
     final response = await multiRequest.send();
-    final result = _handleResponse(await http.Response.fromStream(response));
+    final result = handleResponse(await http.Response.fromStream(response));
     return createFromImageResponseFromMap(result);
   }
 
@@ -128,7 +115,7 @@ class CorrespondenceService {
     final multiRequest = await _buildMultipartRequest('POST', uri, request);
     
     final response = await multiRequest.send();
-    final result = _handleResponse(await http.Response.fromStream(response));
+    final result = handleResponse(await http.Response.fromStream(response));
     return result as String; // Returns the ID
   }
 
@@ -137,13 +124,13 @@ class CorrespondenceService {
     final multiRequest = await _buildMultipartRequest('PUT', uri, request);
 
     final response = await multiRequest.send();
-    _handleResponse(await http.Response.fromStream(response));
+    handleResponse(await http.Response.fromStream(response));
   }
 
   Future<void> deleteCorrespondence(String id) async {
     final uri = Uri.parse('$_baseUrl/$id');
     final response = await _http.delete(uri);
-    _handleResponse(response);
+    handleResponse(response);
   }
 
   Future<Uint8List> downloadFile(String fileId) async {
@@ -165,7 +152,7 @@ class CorrespondenceService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode(request.toMap()),
     );
-    final result = _handleResponse(response);
+    final result = handleResponse(response);
     return generateReplyResponseFromMap(result);
   }
 
@@ -218,14 +205,14 @@ class CorrespondenceService {
       multiRequest.fields['priorityLevel'] = request.priorityLevel.toString();
     }
 
-    // Add file
+    /*// Add file
     if (request.filePath != null) {
       multiRequest.files.add(await http.MultipartFile.fromPath(
         'file',
         request.filePath!,
         filename: request.fileName,
       ));
-    }
+    }*/
 
     // Add classificationIds array
     if (request.classificationIds != null) {
